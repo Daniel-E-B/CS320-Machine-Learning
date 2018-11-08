@@ -3,4 +3,4 @@ project(clustering)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(clustering main.cpp csv.h datagen.h)
+add_executable(clustering main.cpp csv.h datagen.h datagen.cpp csv.cpp dbscan.cpp dbscan.h)
