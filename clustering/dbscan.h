@@ -2,7 +2,7 @@
 
 class Point {
 public:
-    Point(std::vector<double> pos, int id);
+    Point(std::vector<double> pos_, int id_);
     std::vector<Point> neighbors; // pts within maxDist
     std::vector<double> pos;
     bool noise = true;
@@ -13,9 +13,8 @@ typedef std::vector<Point> Cluster;
 
 class DBscan {
 public:
-    DBscan(double maxDist, int minPts);
+    DBscan(double maxDist_, int minPts_);
     std::vector<Cluster> scan(std::vector<std::vector<double>> data); // xy pairs of cluster c
-    double distance(Point p1, Point p2);
 private:
     double maxDist;
     int minPts;

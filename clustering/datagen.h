@@ -3,10 +3,12 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace dataGen {
+namespace dataGen { // also has some processing
     void saveCSV(std::vector<std::vector<double>> data, std::string name);
 
     std::vector<std::vector<double>> generateRandom(int maxX, int maxY, int minX, int minY, int numPts);
+    double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min, double max);
+    double distance(std::vector<double> p1, std::vector<double> p2);
 
     /*
      * generates numClusters clusters at random locations.

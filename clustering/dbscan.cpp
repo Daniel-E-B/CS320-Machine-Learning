@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include "dbscan.h"
+#include "datagen.h"
 
 Point::Point(std::vector<double> pos_, int id_) {
     pos = pos_;
@@ -11,10 +12,6 @@ Point::Point(std::vector<double> pos_, int id_) {
 DBscan::DBscan(double maxDist_, int minPts_) {
     maxDist = maxDist_;
     minPts = minPts_;
-}
-
-double DBscan::distance(Point p1, Point p2) {
-    return sqrt(pow(p1.pos[0] - p2.pos[0], 2) + pow(p1.pos[1] - p2.pos[1], 2));
 }
 
 std::vector<Cluster> DBscan::scan(std::vector<std::vector<double>> data) {
@@ -31,7 +28,7 @@ std::vector<Cluster> DBscan::scan(std::vector<std::vector<double>> data) {
     for (Point outerPt : points) {
         for (Point innerPt : points) {
             if (outerPt.id != innerPt.id) {
-                if (distance(outerPt, innerPt) < maxDist) {
+                if (dataGen::distance(outerPt.pos, innerPt.pos) < maxDist) {
                     // "count" neighbors
                     outerPt.neighbors.push_back(innerPt);
                 }
@@ -45,6 +42,7 @@ std::vector<Cluster> DBscan::scan(std::vector<std::vector<double>> data) {
 
         }
     }
+    // the following should be a function given cluster that returns an updated version of cluster
     for (Cluster cluster : clusters) {
         for (Point corePt : cluster) {
             // for each of this points neighbor points,

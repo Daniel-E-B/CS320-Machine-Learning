@@ -1,10 +1,17 @@
+#include <cmath>
+#include <iostream>
 #include "datagen.h"
 
-double scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min, double max) {
+using namespace dataGen;
+
+double dataGen::scaleBetween(double unscaledNum, double minAllowed, double maxAllowed, double min, double max) {
     return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
 }
 
-using namespace dataGen;
+double dataGen::distance(std::vector<double> p1, std::vector<double> p2) {
+    // without this comment here, it returns nan sometimes
+    return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));
+}
 
 void dataGen::saveCSV(std::vector<std::vector<double>> data, std::string name) {
     std::ofstream outFile(name + ".csv");
