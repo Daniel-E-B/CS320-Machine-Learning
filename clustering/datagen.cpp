@@ -9,7 +9,7 @@ double dataGen::scaleBetween(double unscaledNum, double minAllowed, double maxAl
 }
 
 double dataGen::distance(std::vector<double> p1, std::vector<double> p2) {
-    // without this comment here, it returns nan sometimes
+    // it returns nan sometimes. probably overflow. maybe I should use a dataset with a smaller range?
     return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));
 }
 

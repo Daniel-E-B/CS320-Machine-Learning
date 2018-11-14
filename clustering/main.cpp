@@ -31,7 +31,7 @@ int main() {
 //    }
 //    clusterFile.close();
 
-    KMeans clusterer(5, 10); // 5 clusters, 10 threshold
+    KMeans clusterer(5, 1); // 5 clusters, 1 threshold
     std::vector<std::vector<std::vector<double>>> clusters = clusterer.cluster(data);
     std::cout << "CLUSTERED" << std::endl;
 
@@ -42,7 +42,8 @@ int main() {
         for (std::vector<double> pt : cluster) {
             clusterFile << pt[0] << "," << pt[1] << "\n";
         }
-        clusterFile << "\n\n\n\n";
+        clusterFile << "b\nb\nb\nb\n"; // sometimes the clusters are empty?! maybe two are in the same place
+        std::cout << "cluster written" << std::endl;
     }
 
     clusterFile.close();
