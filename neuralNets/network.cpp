@@ -1,6 +1,7 @@
 #include "network.h"
 #include <cassert>
 #include <iostream>
+#include <random>
 
 double net::ReLU(double x) {
     if (x > 0) {
@@ -12,6 +13,17 @@ double net::ReLU(double x) {
 
 net::Neuron::Neuron(int numWeights) {
     inputWeights.resize(numWeights + 1);  // + 1 for bias
+    // randomize weights:
+    /*
+        https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
+        https://en.cppreference.com/w/cpp/numeric/random/normal_distribution
+    */
+    std::random_device rd;
+    std::mt19937 gen(rd());  
+    std::normal_distribution<> dis(-RAND_MAX, RAND_MAX);
+    for (double w : inputWeights) {
+        w = double(dis(gen)) / double(RAND_MAX) / 100;
+    }
 }
 
 void net::Neuron::feedForward(std::vector<double> &inputs) {
@@ -52,7 +64,7 @@ void net::Network::feedForward(std::vector<double> &input) {
                 layers[i][j].feedForward(fullInput);
             }
         }
-        
+
         // pass stuff forward
         else /*if (i < layers.size() - 1)*/ {
             // get outputs from prev layer
