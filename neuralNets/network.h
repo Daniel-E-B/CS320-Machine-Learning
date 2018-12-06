@@ -18,7 +18,7 @@ class Network {
     std::vector<Layer> layers;
 
    public:
-    Network(std::vector<int> &topology); // configure network
+    Network(std::vector<int> &topology);  // configure network
     void feedForward(std::vector<double> &input);
     void backProp(std::vector<double> &desiredOutput);
 };
