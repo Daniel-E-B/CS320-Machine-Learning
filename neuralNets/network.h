@@ -8,7 +8,7 @@ class Neuron {
     Neuron(int numWeights);
     std::vector<double> inputWeights;
     double output;
-    void feedForward(std::vector<double> &inputs);  // need to set weights somewhere though
+    void feedForward(std::vector<double> &inputs, double bias);
 };
 
 typedef std::vector<Neuron> Layer;
@@ -16,6 +16,7 @@ typedef std::vector<Neuron> Layer;
 class Network {
    private:
     std::vector<Layer> layers;
+    std::vector<double> biases;
 
    public:
     Network(std::vector<int> &topology);  // configure network

@@ -27,26 +27,27 @@ net::Neuron::Neuron(int numWeights) {
     }
 }
 
-void net::Neuron::feedForward(std::vector<double> &inputs) {
+void net::Neuron::feedForward(std::vector<double> &inputs, double bias) {
     output = 0;
     assert(inputs.size() == inputWeights.size());
     for (int i = 0; i < inputs.size(); ++i) {
         output += inputs[i] * inputWeights[i];
     }
-    //output += inputWeights[inputWeights.size() - 1];  // bias I THINK THIS IS ALREADY TAKEN CARE OF
-    output = net::ReLU(output);
+    output = net::ReLU(output + bias);
     // output = tanh(output);
 }
 
 net::Network::Network(std::vector<int> &topology) {
     // set number of neurons / layer, and number of inputweights / neuron
     layers.resize(topology.size());  // number of layers
+    biases.resize(topology.size());
+    std::fill(biases.begin(), biases.end(), 0.01);  // common practice = all 0 or all 0.01 so the relus fire (stanford cs231n)
     for (int i = 0; i < layers.size(); ++i) {
         if (i == 0) {  // first layer all input sizes are 1
             for (int j = 0; j < topology[i]; ++j) {
                 layers[i].push_back(net::Neuron(1));
             }
-        } else {                                  // other layers each neuron has input weight size of previous layer
+        } else {  // other layers each neuron has input weight size of previous layer
             for (int j = 0; j < topology[i]; ++j) {
                 layers[i].push_back(net::Neuron(layers[i - 1].size()));  //  -1 to get prev layer
             }
@@ -60,7 +61,7 @@ void net::Network::feedForward(std::vector<double> &input) {
         // feed the inputs to the first layer:
         if (i == 0) {
             for (int j = 0; j < input.size(); ++j) {
-                layers[i][j].feedForward(input);
+                layers[i][j].feedForward(input, biases[i]);
             }
         }
 
@@ -71,10 +72,9 @@ void net::Network::feedForward(std::vector<double> &input) {
             for (int j = 0; j < layers[i - 1].size(); ++j) {
                 prevOutputs.push_back(layers[i - 1][j].output);
             }
-            // bias is already added, so no need to add it here
             // feed to next layer
             for (int j = 0; j < layers[i].size() - 1; ++j) {
-                layers[i][j].feedForward(prevOutputs);
+                layers[i][j].feedForward(prevOutputs, biases[i]);
             }
         }
     }
@@ -90,14 +90,15 @@ void net::Network::feedForward(std::vector<double> &input) {
                 std::cout << w << ",";
             }
         }
-        std::cout << std::endl;
+        std::cout << std::endl << std::endl;
     }
     std::cout << "outputs: " << std::endl;
-    for (Layer l : layers) {
-        std::cout<<"layer size: "<<l.size()<<std::endl;
+    for (int i = 0; i <layers.size(); ++i) {
+        Layer l = layers[i];
+        std::cout << "layer size: " << l.size() << std::endl;
         for (net::Neuron n : l) {
             std::cout << n.output << ",";
         }
-        std::cout << std::endl;
+        std::cout<<std::endl<<"bias: "<<biases[i]<<std::endl;
     }
 }
