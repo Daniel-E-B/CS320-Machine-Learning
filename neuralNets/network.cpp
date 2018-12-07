@@ -1,5 +1,6 @@
 #include "network.h"
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <random>
 
@@ -12,16 +13,16 @@ double net::ReLU(double x) {
 }
 
 net::Neuron::Neuron(int numWeights) {
-    inputWeights.resize(numWeights + 1);  // + 1 for bias
+    inputWeights.resize(numWeights);
     // randomize weights:
     /*
         https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
         https://en.cppreference.com/w/cpp/numeric/random/normal_distribution
     */
     std::random_device rd;
-    std::mt19937 gen(rd());  
+    std::mt19937 gen(rd());
     std::normal_distribution<> dis(-RAND_MAX, RAND_MAX);
-    for (double w : inputWeights) {
+    for (double &w : inputWeights) {
         w = double(dis(gen)) / double(RAND_MAX) / 100;
     }
 }
@@ -34,6 +35,7 @@ void net::Neuron::feedForward(std::vector<double> &inputs) {
     }
     //output += inputWeights[inputWeights.size() - 1];  // bias I THINK THIS IS ALREADY TAKEN CARE OF
     output = net::ReLU(output);
+    // output = tanh(output);
 }
 
 net::Network::Network(std::vector<int> &topology) {
@@ -44,29 +46,26 @@ net::Network::Network(std::vector<int> &topology) {
             for (int j = 0; j < topology[i]; ++j) {
                 layers[i].push_back(net::Neuron(1));
             }
-            layers[i].push_back(net::Neuron(0));  // bias?
         } else {                                  // other layers each neuron has input weight size of previous layer
             for (int j = 0; j < topology[i]; ++j) {
-                layers[i].push_back(net::Neuron(layers[i - 1].size() - 1));  // first -1 to get prev layer. second to cancel bias compensation by neuron()
+                layers[i].push_back(net::Neuron(layers[i - 1].size()));  //  -1 to get prev layer
             }
-            layers[i].push_back(net::Neuron(0));  // bias?
         }
     }
 }
 
 void net::Network::feedForward(std::vector<double> &input) {
-    assert(input.size() == layers[0].size() - 1);  // -1 for bias
+    assert(input.size() == layers[0].size());
     for (int i = 0; i < layers.size(); ++i) {
         // feed the inputs to the first layer:
         if (i == 0) {
             for (int j = 0; j < input.size(); ++j) {
-                std::vector<double> fullInput = {input[j], 1};  // 1 for the bias
-                layers[i][j].feedForward(fullInput);
+                layers[i][j].feedForward(input);
             }
         }
 
         // pass stuff forward
-        else /*if (i < layers.size() - 1)*/ {
+        else {
             // get outputs from prev layer
             std::vector<double> prevOutputs;
             for (int j = 0; j < layers[i - 1].size(); ++j) {
@@ -78,5 +77,27 @@ void net::Network::feedForward(std::vector<double> &input) {
                 layers[i][j].feedForward(prevOutputs);
             }
         }
+    }
+    std::cout << "Fed forward:" << std::endl;
+    for (double val : input) {
+        std::cout << val << ",";
+    }
+    std::cout << std::endl
+              << "input weights: " << std::endl;
+    for (Layer l : layers) {
+        for (net::Neuron n : l) {
+            for (double w : n.inputWeights) {
+                std::cout << w << ",";
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "outputs: " << std::endl;
+    for (Layer l : layers) {
+        std::cout<<"layer size: "<<l.size()<<std::endl;
+        for (net::Neuron n : l) {
+            std::cout << n.output << ",";
+        }
+        std::cout << std::endl;
     }
 }
