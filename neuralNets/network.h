@@ -25,7 +25,7 @@ class Network {
    public:
     Network(std::vector<int> &topology, double lr);  // configure network
     double learningRate;
-    std::vector<double> feedForward(std::vector<double> &input);
+    std::vector<double> feedForward(std::vector<double> input);
     void backProp(std::vector<double> &desiredOutput);
 };
 }  // namespace net

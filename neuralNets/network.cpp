@@ -26,9 +26,9 @@ net::Neuron::Neuron(int numWeights) {
     */
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<> dis(0, RAND_MAX);
+    std::normal_distribution<> dis(-RAND_MAX, RAND_MAX);
     for (double &w : inputWeights) {
-        w = double(dis(gen)) / RAND_MAX / 100.0 + 0.01;
+        w = double(dis(gen)) / RAND_MAX;  // / 10.0;
     }
 }
 
@@ -61,8 +61,8 @@ net::Network::Network(std::vector<int> &topology, double lr) {
     }
 }
 
-std::vector<double> net::Network::feedForward(std::vector<double> &input) {
-    recentInputs = input;  // might have reference issues
+std::vector<double> net::Network::feedForward(std::vector<double> input) {
+    recentInputs = input;
     std::vector<std::vector<double>> firstLayerInputs = {};
     for (int i = 0; i < input.size(); ++i) {
         firstLayerInputs.push_back({});
@@ -160,22 +160,38 @@ void net::Network::backProp(std::vector<double> &desiredOutput) {
         }
     }
     // std::cout << "computed errors"<<std::endl;
-    // update the weights
+    // update the weights. rewritten to use same iteration pattern as error generation
     // go through each layer
-    for (int i = 0; i < layers.size(); ++i) {
-        // go through each neuron
+    for (int i = layers.size() - 1; i >= 0; --i) {
+        // go through each neuron in current layer
         for (int j = 0; j < layers[i].size(); ++j) {
-            // go through each weight
+            // go through each input weight
             for (int k = 0; k < layers[i][j].inputWeights.size(); ++k) {
+                double SGDinput;
                 if (i == 0) {
-                    layers[i][j].inputWeights[k] = layers[i][j].inputWeights[k] + learningRate * errors[layers.size() - 1 - i][j] * recentInputs[j];
+                    SGDinput = recentInputs[j];
                 } else {
-                    layers[i][j].inputWeights[k] = layers[i][j].inputWeights[k] + learningRate * errors[layers.size() - 1 - i][j] * layers[i][j].output;
-                    // std::cout<<layers[i][j].output<<",";
+                    SGDinput = layers[i][j].output;
                 }
+                layers[i][j].inputWeights[k] = layers[i][j].inputWeights[k] + learningRate * errors[i][j] * SGDinput;
             }
-            // std::cout<<"    ";
         }
-        // std::cout<<std::endl;
     }
+
+    // for (int i = 0; i < layers.size(); ++i) {
+    //     // go through each neuron
+    //     for (int j = 0; j < layers[i].size(); ++j) {
+    //         // go through each weight
+    //         for (int k = 0; k < layers[i][j].inputWeights.size(); ++k) {
+    //             if (i == 0) {
+    //                 layers[i][j].inputWeights[k] = layers[i][j].inputWeights[k] + learningRate * errors[layers.size() - 1 - i][j] * recentInputs[j];
+    //             } else {
+    //                 layers[i][j].inputWeights[k] = layers[i][j].inputWeights[k] + learningRate * errors[layers.size() - 1 - i][j] * layers[i][j].output;
+    //                 // std::cout<<layers[i][j].output<<",";
+    //             }
+    //         }
+    //         // std::cout<<"    ";
+    //     }
+    //     // std::cout<<std::endl;
+    // }
 }
